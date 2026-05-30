@@ -1,6 +1,6 @@
 'use client'
 //TODO make this a functional react component 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export default function RecordMotion() {
 
@@ -17,32 +17,26 @@ export default function RecordMotion() {
     let saveCounter = 1;
     let speedMultiple = 1;
 
-    const canvas = null;
-    const ctx = null;
+    //to store the element's id for the canvas and this.context later to change their properties. 
+    // attach thru ref attribute on the html element
+    const canvasRef = useRef(null);
 
-    useEffect(() => {
-        const canvas = document.getElementById('gameCanvas');
-        if (canvas) {
-            console.log('canvas found');
-            const ctx = canvas.getContext('2d');
-            }
-        else{
-            console.log('canvas not found');
-        }
-        document.getElementById("myText").innerHTML = targetFPS;
-        return () => {
-            //destroy the canvas 
-        };
-    }, [canvas, ctx]);
+
+    //TODO clean this up/get rid of it
+    // useEffect(() => {
+
+    //     const ctx = canvas.getContext('2d');
+    //     document.getElementById("myText").innerHTML = targetFPS;
+    //     return () => {
+    //         //destroy the canvas 
+    //     };
+    // }, [canvas, ctx]);
 
 
     //FPS CAP
     const targetFPS = 60; 
     const targetFrameDuration = 1000 / targetFPS; // ~16.67ms  
-    let lastTime = 0;  
-    
-
-
+    let lastTime = 0;
 
     function resizeCanvas() {
         canvas.width = window.innerWidth;
@@ -128,24 +122,24 @@ export default function RecordMotion() {
     }
 
     function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.context.clearRect(0, 0, canvas.width, canvas.height);
         if (recording) {
             data.push({ x: mouseX, y: mouseY });
             updateSizeCounter();
-            ctx.fillStyle = 'red';
-            ctx.fillRect(mouseX - 16, mouseY - 16, 32, 32);
+            this.context.fillStyle = 'red';
+            this.context.fillRect(mouseX - 16, mouseY - 16, 32, 32);
         } else if (isPlaying) {
             if (currentFrame < recordingLength) {
                 const p = data[Math.min(Math.round(currentFrame), recordingLength - 1)]; //min makes sure doesent index out of bounds, round makes sure the decimal is removed before searching the index
-                ctx.fillStyle = 'green';
-                ctx.fillRect(p.x - 16, p.y - 16, 32, 32);
+                this.context.fillStyle = 'green';
+                this.context.fillRect(p.x - 16, p.y - 16, 32, 32);
                 currentFrame += speedMultiple; //anything other than 1 will make playback a different speed, relative to the original speed.
             } else {
                 currentFrame = 0;
             }
         } else {
-            ctx.fillStyle = 'white';
-            ctx.fillText("Press and hold to record, release to playback", 20, 20);
+            this.context.fillStyle = 'white';
+            this.context.fillText("Press and hold to record, release to playback", 20, 20);
         }
     }
 
@@ -206,7 +200,7 @@ export default function RecordMotion() {
 
   return (
     <div>
-        <canvas id="gameCanvas"></canvas>
+        <canvas ref={(canvasRef) => this.context = canvasRef.getContext('2d')}></canvas> //attaches itself to react ref and gets context for canvas
 
         <div id="ui">
             <h3>Target FPS: <span id="myText"></span></h3>
