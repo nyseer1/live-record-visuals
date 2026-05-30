@@ -8,16 +8,15 @@ lazy loading client component in Next.js faster initial load time
 and only include them in the client bundle when they're needed. For example, you 
 might want to defer loading a modal until a user clicks to open it.)
 */
-const TonejsContainer = dynamic(() => import('./ToneJSContainer'));
+const TonejsContainer = dynamic(() => import("./ToneJSContainer"));
 
 export default function Home() {
   return (
     <>
-    <h1>Nyseer</h1>
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <TonejsContainer></TonejsContainer>
-    </div>
+      <h1>Nyseer</h1>
+      <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+        <TonejsContainer></TonejsContainer>
+      </div>
     </>
-    
   );
 }
