@@ -2,6 +2,7 @@
 import { useState } from "react";
 import * as Tone from "tone";
 import CanvasCursor from "./components/cursors/CanvasCursor";
+import RecordMotion from "./components/recordMotion";
 
 export default function ToneJSContainer() {
   const [isTonejsOn, setIsTonejsOn] = useState(false);
@@ -26,7 +27,8 @@ export default function ToneJSContainer() {
     <div>
       {isTonejsOn ? (
         <div>
-          <CanvasCursor id='canvas'></CanvasCursor>
+          {/* <CanvasCursor id='cursor'/> */}
+          <RecordMotion/>
           draw on the canvas here
         </div>
       ) : (
