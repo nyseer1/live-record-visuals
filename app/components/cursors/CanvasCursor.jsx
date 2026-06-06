@@ -1,4 +1,3 @@
-import React from 'react';
 import useCanvasCursor from './useCanvasCursor';
 
 export default function CanvasCursor({id}) {

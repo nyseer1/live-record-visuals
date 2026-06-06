@@ -1,10 +1,9 @@
 'use client'
 //TODO make this a functional react component 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
+import "./recordMotion.css";
 
-export default function RecordMotion() {
-
-    
+export default function RecordMotion({ref}) {
 
     let data = [];
     let currentFrame = 0;
@@ -17,21 +16,81 @@ export default function RecordMotion() {
     let saveCounter = 1;
     let speedMultiple = 1;
 
-    //to store the element's id for the canvas and this.context later to change their properties. 
-    // attach thru ref attribute on the html element
+    //ref to manipulate the DOM
+    //(pass ref object as the ref attribute to JSX of DOM node to manipulate)
     const canvasRef = useRef(null);
+    const ctx = useRef(null); //context
+
+    useImperativeHandle(ref, () => {
+        return {
+            startRecording(event) {
+                console.log('recording start');
+                recording = true;
+                isPlaying = false;
+                data = [];
+                recordingLength = 0;
+                mouseX = event.clientX || event.touches[0].clientX;
+                mouseY = event.clientY || event.touches[0].clientY;
+                document.getElementById('sizeCounter').innerText = `Size: 0 bytes`;
+            },
+
+            stopRecording() {
+                console.log('recording stopped');
+                recording = false;
+                isPlaying = true;
+                recordingLength = data.length;
+                currentFrame = 0;
+            }
+            
+        }
+    })
+
+    useEffect(() => {
+
+        //these are done after DOM is rendered.
+        //everything only called once
+        resizeCanvas();
+        requestAnimationFrame(animate);
+
+        ctx.current = document.getElementById("canvas").getContext("2d");
 
 
-    //TODO clean this up/get rid of it
-    // useEffect(() => {
+        const dropZone = document.getElementById('drop_zone');
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#333';
+        });
 
-    //     const ctx = canvas.getContext('2d');
-    //     document.getElementById("myText").innerHTML = targetFPS;
-    //     return () => {
-    //         //destroy the canvas 
-    //     };
-    // }, [canvas, ctx]);
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#222';
+        });
 
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.style.backgroundColor = '#222';
+            const file = e.dataTransfer.files[0];
+            loadMotionFromFile(file);
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+
+        window.addEventListener('pointerup', function(event) {
+            if (recording) stopRecording();
+        });
+
+        window.addEventListener('pointermove', function(event) {
+            if (recording) updatePosition(event);
+        });
+
+        // document.getElementById("myText").innerHTML = targetFPS;
+        return () => {
+            //destroy the canvas 
+        };
+    },[]);
+
+
+    //TODO TURN THE EVENT LISTENERS (that arent window because window isnt being referenced) into react events & handlers 
 
     //FPS CAP
     const targetFPS = 60; 
@@ -39,12 +98,11 @@ export default function RecordMotion() {
     let lastTime = 0;
 
     function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvasRef.current.width = window.innerWidth;
+        canvasRef.current.height = window.innerHeight;
     }
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    
 
     function updateSizeCounter() {
         const jsonString = JSON.stringify(data, null, 2);
@@ -53,6 +111,7 @@ export default function RecordMotion() {
     }
 
     function startRecording(event) {
+        console.log('recording start');
         recording = true;
         isPlaying = false;
         data = [];
@@ -63,6 +122,7 @@ export default function RecordMotion() {
     }
 
     function stopRecording() {
+        console.log('recording stop');
         recording = false;
         isPlaying = true;
         recordingLength = data.length;
@@ -74,34 +134,28 @@ export default function RecordMotion() {
         mouseY = event.clientY || event.touches[0].clientY;
     }
 
-    canvas.addEventListener('pointerdown', function(event) {
-        if (event.pointerType === 'mouse' || event.pointerType === 'pen' || event.pointerType === 'touch') {
-            startRecording(event);
-        }
-    });
+    // canvasRef.current.addEventListener('pointerdown', function(event) {
+    //     if (event.pointerType === 'mouse' || event.pointerType === 'pen' || event.pointerType === 'touch') {
+    //         startRecording(event);
+    //     }
+    // });
 
-    window.addEventListener('pointerup', function(event) {
-        if (recording) stopRecording();
-    });
+    
 
-    window.addEventListener('pointermove', function(event) {
-        if (recording) updatePosition(event);
-    });
+    // canvasRef.current.addEventListener('touchstart', function(event) {
+    //     event.preventDefault();
+    //     startRecording(event);
+    // });
 
-    canvas.addEventListener('touchstart', function(event) {
-        event.preventDefault();
-        startRecording(event);
-    });
+    // canvasRef.current.addEventListener('touchend', function(event) {
+    //     event.preventDefault();
+    //     stopRecording();
+    // });
 
-    canvas.addEventListener('touchend', function(event) {
-        event.preventDefault();
-        stopRecording();
-    });
-
-    canvas.addEventListener('touchmove', function(event) {
-        event.preventDefault();
-        updatePosition(event);
-    });
+    // canvasRef.current.addEventListener('touchmove', function(event) {
+    //     event.preventDefault();
+    //     updatePosition(event);
+    // });
 
     // ANIMATION ----------------------------------------------------------------------------------------------------------
 
@@ -122,24 +176,24 @@ export default function RecordMotion() {
     }
 
     function draw() {
-        this.context.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         if (recording) {
             data.push({ x: mouseX, y: mouseY });
             updateSizeCounter();
-            this.context.fillStyle = 'red';
-            this.context.fillRect(mouseX - 16, mouseY - 16, 32, 32);
+            ctx.current.fillStyle = 'red';
+            ctx.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
         } else if (isPlaying) {
             if (currentFrame < recordingLength) {
                 const p = data[Math.min(Math.round(currentFrame), recordingLength - 1)]; //min makes sure doesent index out of bounds, round makes sure the decimal is removed before searching the index
-                this.context.fillStyle = 'green';
-                this.context.fillRect(p.x - 16, p.y - 16, 32, 32);
+                ctx.current.fillStyle = 'green';
+                ctx.current.fillRect(p.x - 16, p.y - 16, 32, 32);
                 currentFrame += speedMultiple; //anything other than 1 will make playback a different speed, relative to the original speed.
             } else {
                 currentFrame = 0;
             }
         } else {
-            this.context.fillStyle = 'white';
-            this.context.fillText("Press and hold to record, release to playback", 20, 20);
+            ctx.current.fillStyle = 'white';
+            ctx.current.fillText("Press and hold to record, release to playback", 20, 20);
         }
     }
 
@@ -176,43 +230,39 @@ export default function RecordMotion() {
         reader.readAsText(file);
     }
 
-    const dropZone = document.getElementById('drop_zone');
-    dropZone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        dropZone.style.backgroundColor = '#333';
-    });
-
-    dropZone.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        dropZone.style.backgroundColor = '#222';
-    });
-
-    dropZone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        dropZone.style.backgroundColor = '#222';
-        const file = e.dataTransfer.files[0];
-        loadMotionFromFile(file);
-    });
-
-    requestAnimationFrame(animate);
-
+    return (
+        <div>
+                
+            {/* 
+            TODO TRY CANVASREF.CURRENT. old version:
+            ref={(canvasRef) => this.context = canvasRef.current.getContext('2d')} */}
+            {/*TODO startRecording and stopRecording need to be called from parent using props 
+            of the parent's useStates, put the props inside a useEffect that has the props in 
+            the dependencies and they will auto update and call useEffect again. 
+            This will cause a rerender in the child i think so it should be fine since
+ */}
+            <canvas 
+            ref={canvasRef}
+            onTouchStart={(e) => {e.preventDefault(); updatePosition(e);}}
+            onTouchMove={(e) => {e.preventDefault(); updatePosition(e);}}
+            onPointerDown={(e) => {e.preventDefault(); updatePosition(e);}}
+            id="canvas"
+            ></canvas>
 
 
-  return (
-    <div>
-        <canvas ref={(canvasRef) => this.context = canvasRef.getContext('2d')}></canvas> //attaches itself to react ref and gets context for canvas
-
-        <div id="ui">
-            <h3>Target FPS: <span id="myText"></span></h3>
-            <button onclick="saveMotion()">Save Motion</button>
-            <div id="drop_zone">
-                Drag and drop saved motion file here to load
+            <div id="ui">
+                <h3>Target FPS: <span id="myText"></span></h3>
+                <button onClick={saveMotion}>Save Motion</button>
+                <div id="drop_zone"
+                onDragOver={saveMotion}
+                >
+                    Drag and drop saved motion file here to load
+                </div>
+                <div id="statusMessage"></div>
+                <div id="sizeCounter">Size: 0 bytes</div>
             </div>
-            <div id="statusMessage"></div>
-            <div id="sizeCounter">Size: 0 bytes</div>
-        </div>
 
-    </div>
-    
-  );
+        </div>
+        
+    );
 }

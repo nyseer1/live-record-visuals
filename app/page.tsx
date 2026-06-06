@@ -1,13 +1,8 @@
 // import Image from "next/image";
 import dynamic from "next/dynamic";
 
-//
-/*
-lazy loading client component in Next.js faster initial load time
-(It allows you to defer loading of Client Components and imported libraries, 
-and only include them in the client bundle when they're needed. For example, you 
-might want to defer loading a modal until a user clicks to open it.)
-*/
+//lazy loading client component in Next.js faster initial load time (loads Client Components and imported libraries only when needed)
+
 const TonejsContainer = dynamic(() => import("./ToneJSContainer"));
 
 export default function Home() {
