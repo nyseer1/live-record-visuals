@@ -25,18 +25,16 @@ export default function RecordMotion({ref}) {
     useImperativeHandle(ref, () => {
         return {
             startRecording(event) { //clears old recording, i could make it overwrite ontop of previous
-                console.log('recording start');
                 recording = true;
                 isPlaying = false;
                 data = [];
                 recordingLength = 0;
                 mouseX = event.clientX - canvas.offsetLeft;
                 mouseY = event.clientY - canvas.offsetTop;
-                document.getElementById('sizeCounter').innerText = `Size: 0 bytes`;
+                // document.getElementById('sizeCounter').innerText = `Size: 0 bytes`; //save/load file (file size)
             },
 
             stopRecording() { //starts playback 
-                console.log('recording stopped');
                 recording = false;
                 isPlaying = true; 
                 recordingLength = data.length;
@@ -57,26 +55,30 @@ export default function RecordMotion({ref}) {
 
         ctx.current = document.getElementById("canvas").getContext("2d");
 
+        //drag and drop file upload
+        // const dropZone = document.getElementById('drop_zone');
+        // dropZone.addEventListener('dragover', function(e) {
+        //     e.preventDefault();
+        //     dropZone.style.backgroundColor = '#333';
+        // });
 
-        const dropZone = document.getElementById('drop_zone');
-        dropZone.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            dropZone.style.backgroundColor = '#333';
-        });
+        // dropZone.addEventListener('dragleave', function(e) {
+        //     e.preventDefault();
+        //     dropZone.style.backgroundColor = '#222';
+        // });
 
-        dropZone.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            dropZone.style.backgroundColor = '#222';
-        });
-
-        dropZone.addEventListener('drop', function(e) {
-            e.preventDefault();
-            dropZone.style.backgroundColor = '#222';
-            const file = e.dataTransfer.files[0];
-            loadMotionFromFile(file);
-        });
+        // dropZone.addEventListener('drop', function(e) {
+        //     e.preventDefault();
+        //     dropZone.style.backgroundColor = '#222';
+        //     const file = e.dataTransfer.files[0];
+        //     loadMotionFromFile(file);
+        // });
 
         window.addEventListener('resize', resizeCanvas);
+
+        // window.addEventListener('pointerup', function(event) {
+        //     if (recording) stopRecording();
+        // });
 
         window.addEventListener('pointermove', function(event) {
             if (recording) updatePosition(event);
@@ -108,19 +110,18 @@ export default function RecordMotion({ref}) {
 
     function startRecording(event) {
         getPosition(event); //sets coord.x and coord.y
-        console.log('recording start');
         recording = true;
         isPlaying = false;
         data = [];
         recordingLength = 0;
         mouseX = event.clientX - canvas.offsetLeft;
         mouseY = event.clientY - canvas.offsetTop;
-        document.getElementById('sizeCounter').innerText = `Size: 0 bytes`;
+        // document.getElementById('sizeCounter').innerText = `Size: 0 bytes`; //save/load file (file size)
         paint = true;
+
     }
 
     function stopRecording() {
-        console.log('recording stop');
         recording = false;
         isPlaying = true;
         recordingLength = data.length;
@@ -137,13 +138,14 @@ export default function RecordMotion({ref}) {
     // ANIMATION ----------------------------------------------------------------------------------------------------------
 
     function animate(currentTime) {  
-    const elapsed = currentTime - lastTime;  //time since last frame
+    // Calculate time since last frame  
+    const elapsed = currentTime - lastTime;  
     
-    // Only update/draw if enough time has passed (clamp to each 1/60th second for consistent 60fps)
+    // Only update/draw if enough time has passed (clamps to each 1/60th second for consistent 60fps)
     if (elapsed >= targetFrameDuration) {  
         lastTime = currentTime - (elapsed % targetFrameDuration); // Account for excess time  
     
-        // Update(reset/clear canvas) and draw a frame
+        // Update(reset/clear canvas) and draw
         draw();
     }
     
@@ -156,7 +158,7 @@ export default function RecordMotion({ref}) {
         if (recording) {
             if(paint){ //if mouse/touch down is happening, draw
                 data.push({ x: mouseX, y: mouseY });
-                updateSizeCounter();
+                // updateSizeCounter();
                 ctx.current.fillStyle = 'red';
                 ctx.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
             }
@@ -174,7 +176,6 @@ export default function RecordMotion({ref}) {
                 }
                 //TODO IF NULL MAKE EMPTY FRAME
                 else {
-                    console.log('blank frame here');
                 }
                 
                 currentFrame += speedMultiple; //anything other than 1 will make playback a different speed, relative to the original speed.
@@ -212,7 +213,7 @@ export default function RecordMotion({ref}) {
                 currentFrame = 0;
                 isPlaying = true;
                 document.getElementById('statusMessage').innerText = 'Motion data loaded successfully.';
-                updateSizeCounter();
+                // updateSizeCounter();
             } catch (e) {
                 document.getElementById('statusMessage').innerText = 'Failed to load motion data.';
             }
@@ -233,7 +234,8 @@ export default function RecordMotion({ref}) {
             id="canvas"
             ></canvas>
 
-            <div id="ui">
+            {/* save/load motion */}
+            {/* <div id="ui">
                 <h3>Target FPS: <span id="myText"></span></h3>
                 <button onClick={saveMotion}>Save Motion</button>
                 <div id="drop_zone"
@@ -243,7 +245,7 @@ export default function RecordMotion({ref}) {
                 </div>
                 <div id="statusMessage"></div>
                 <div id="sizeCounter">Size: 0 bytes</div>
-            </div>
+            </div> */}
 
         </div>
         

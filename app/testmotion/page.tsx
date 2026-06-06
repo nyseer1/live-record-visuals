@@ -1,6 +1,6 @@
 "use client";
 import { PointerEvent, useRef, useState } from "react";
-import RecordMotion from "../components/recordMotion";
+import RecordMotion from "../components/WaveRecordMotion";
 
 export default function ToneJSContainer() {
 
@@ -20,7 +20,7 @@ export default function ToneJSContainer() {
   return (
     <>
       {isMotion ? (
-        <button onPointerDown={(e) => {handleStopRecording(); setIsMotion(true)}}>Playback Recording</button>
+        <button onPointerDown={(e) => {handleStopRecording(); setIsMotion(true)}}>Start Playback</button>
       ) : (
         <button onPointerDown={(e) => {handleStartRecording(e); setIsMotion(true)}}>
           Click here to start recording
