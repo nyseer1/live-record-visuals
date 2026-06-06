@@ -75,9 +75,9 @@ export default function RecordMotion({ref}) {
 
         window.addEventListener('resize', resizeCanvas);
 
-        window.addEventListener('pointerup', function(event) {
-            if (recording) stopRecording();
-        });
+        // window.addEventListener('pointerup', function(event) {
+        //     if (recording) stopRecording();
+        // });
 
         window.addEventListener('pointermove', function(event) {
             if (recording) updatePosition(event);
