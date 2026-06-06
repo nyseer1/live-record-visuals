@@ -1,7 +1,7 @@
 "use client";
 import { PointerEvent, useRef, useState } from "react";
 import RecordMotion from "../components/recordMotion";
-import "./testmotion.css";
+// import "./testmotion.css";
 
 export default function ToneJSContainer() {
 
@@ -20,11 +20,11 @@ export default function ToneJSContainer() {
   // }
 
   return (
-    <div>
+    <>
       <button onPointerDown={(e) => {
         handleStartRecording(e);
       }}>Click here to start recording</button>
       <RecordMotion ref={recordMotionRef} />
-    </div>
+    </>
   );
 }

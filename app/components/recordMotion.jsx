@@ -16,6 +16,8 @@ export default function RecordMotion({ref}) {
     let saveCounter = 1;
     let speedMultiple = 1;
 
+    
+
     //ref to manipulate the DOM
     //(pass ref object as the ref attribute to JSX of DOM node to manipulate)
     const canvasRef = useRef(null);
@@ -29,8 +31,8 @@ export default function RecordMotion({ref}) {
                 isPlaying = false;
                 data = [];
                 recordingLength = 0;
-                mouseX = event.clientX || event.touches[0].clientX;
-                mouseY = event.clientY || event.touches[0].clientY;
+                mouseX = event.clientX - canvas.offsetLeft;
+                mouseY = event.clientY - canvas.offsetTop;
                 document.getElementById('sizeCounter').innerText = `Size: 0 bytes`;
             },
 
@@ -111,13 +113,14 @@ export default function RecordMotion({ref}) {
     }
 
     function startRecording(event) {
+        getPosition(event); //sets coord.x and coord.y
         console.log('recording start');
         recording = true;
         isPlaying = false;
         data = [];
         recordingLength = 0;
-        mouseX = event.clientX || event.touches[0].clientX;
-        mouseY = event.clientY || event.touches[0].clientY;
+        mouseX = event.clientX - canvas.offsetLeft;
+        mouseY = event.clientY - canvas.offsetTop;
         document.getElementById('sizeCounter').innerText = `Size: 0 bytes`;
     }
 
@@ -130,8 +133,8 @@ export default function RecordMotion({ref}) {
     }
 
     function updatePosition(event) {
-        mouseX = event.clientX || event.touches[0].clientX;
-        mouseY = event.clientY || event.touches[0].clientY;
+        mouseX = event.clientX - canvas.offsetLeft;
+        mouseY = event.clientY - canvas.offsetTop;
     }
 
     // canvasRef.current.addEventListener('pointerdown', function(event) {
