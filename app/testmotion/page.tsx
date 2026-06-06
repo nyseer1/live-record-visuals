@@ -1,29 +1,31 @@
 "use client";
 import { PointerEvent, useRef, useState } from "react";
 import RecordMotion from "../components/recordMotion";
-// import "./testmotion.css";
 
 export default function ToneJSContainer() {
 
-  //TODO initialize canvas,variables, and its functions here
-
-  const recordMotionRef = useRef(null);
-  const touchEventRef = useRef(null);
-
+  const recordMotionRef = useRef<any>(null);
+  // const touchEventRef = useRef(null);
+  const [isMotion, setIsMotion] = useState(false);
 
   function handleStartRecording(e: PointerEvent<HTMLElement>){
+    if(recordMotionRef.current === null) return;
     recordMotionRef.current.startRecording(e);
   };
-
-  // function handleOnClick(){
-  //   //example handleChildEvent
-  // }
+  function handleStopRecording(){
+    if(recordMotionRef.current === null) return;
+    recordMotionRef.current.stopRecording();
+  }
 
   return (
     <>
-      <button onPointerDown={(e) => {
-        handleStartRecording(e);
-      }}>Click here to start recording</button>
+      {isMotion ? (
+        <button onPointerDown={(e) => {handleStopRecording(); setIsMotion(true)}}>Playback Recording</button>
+      ) : (
+        <button onPointerDown={(e) => {handleStartRecording(e); setIsMotion(true)}}>
+          Click here to start recording
+        </button>
+      )}
       <RecordMotion ref={recordMotionRef} />
     </>
   );

@@ -2,6 +2,7 @@
 //TODO make this a functional react component 
 import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import "./recordMotion.css";
+import { Truculenta } from "next/font/google";
 
 export default function RecordMotion({ref}) {
 
@@ -15,8 +16,7 @@ export default function RecordMotion({ref}) {
     let recordingLength = 0;
     let saveCounter = 1;
     let speedMultiple = 1;
-
-    
+    let paint = false;
 
     //ref to manipulate the DOM
     //(pass ref object as the ref attribute to JSX of DOM node to manipulate)
@@ -25,7 +25,7 @@ export default function RecordMotion({ref}) {
 
     useImperativeHandle(ref, () => {
         return {
-            startRecording(event) {
+            startRecording(event) { //clears old recording, i could make it overwrite ontop of previous
                 console.log('recording start');
                 recording = true;
                 isPlaying = false;
@@ -34,16 +34,20 @@ export default function RecordMotion({ref}) {
                 mouseX = event.clientX - canvas.offsetLeft;
                 mouseY = event.clientY - canvas.offsetTop;
                 document.getElementById('sizeCounter').innerText = `Size: 0 bytes`;
+                paint = true;
             },
 
-            stopRecording() {
+            stopRecording() { //starts playback 
                 console.log('recording stopped');
                 recording = false;
-                isPlaying = true;
+                isPlaying = true; 
                 recordingLength = data.length;
                 currentFrame = 0;
+                paint = false;
+            },
+            calculateSpeed(){
+                //TODO find speed necessary to do specific bpm
             }
-            
         }
     })
 
@@ -91,7 +95,6 @@ export default function RecordMotion({ref}) {
         };
     },[]);
 
-
     //TODO TURN THE EVENT LISTENERS (that arent window because window isnt being referenced) into react events & handlers 
 
     //FPS CAP
@@ -102,9 +105,7 @@ export default function RecordMotion({ref}) {
     function resizeCanvas() {
         canvasRef.current.width = window.innerWidth;
         canvasRef.current.height = window.innerHeight;
-    }
-
-    
+    }    
 
     function updateSizeCounter() {
         const jsonString = JSON.stringify(data, null, 2);
@@ -137,29 +138,6 @@ export default function RecordMotion({ref}) {
         mouseY = event.clientY - canvas.offsetTop;
     }
 
-    // canvasRef.current.addEventListener('pointerdown', function(event) {
-    //     if (event.pointerType === 'mouse' || event.pointerType === 'pen' || event.pointerType === 'touch') {
-    //         startRecording(event);
-    //     }
-    // });
-
-    
-
-    // canvasRef.current.addEventListener('touchstart', function(event) {
-    //     event.preventDefault();
-    //     startRecording(event);
-    // });
-
-    // canvasRef.current.addEventListener('touchend', function(event) {
-    //     event.preventDefault();
-    //     stopRecording();
-    // });
-
-    // canvasRef.current.addEventListener('touchmove', function(event) {
-    //     event.preventDefault();
-    //     updatePosition(event);
-    // });
-
     // ANIMATION ----------------------------------------------------------------------------------------------------------
 
     function animate(currentTime) {  
@@ -179,24 +157,36 @@ export default function RecordMotion({ref}) {
     }
 
     function draw() {
-        ctx.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        ctx.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); //always clear
         if (recording) {
-            data.push({ x: mouseX, y: mouseY });
-            updateSizeCounter();
-            ctx.current.fillStyle = 'red';
-            ctx.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
+            if(paint){ //if mouse/touch down is happening, draw
+                data.push({ x: mouseX, y: mouseY });
+                updateSizeCounter();
+                ctx.current.fillStyle = 'red';
+                ctx.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
+            }
+            else{
+                data.push(null);
+            }
+            
         } else if (isPlaying) {
-            if (currentFrame < recordingLength) {
+            if (currentFrame < recordingLength) { //p is frame
                 const p = data[Math.min(Math.round(currentFrame), recordingLength - 1)]; //min makes sure doesent index out of bounds, round makes sure the decimal is removed before searching the index
-                ctx.current.fillStyle = 'green';
-                ctx.current.fillRect(p.x - 16, p.y - 16, 32, 32);
-                currentFrame += speedMultiple; //anything other than 1 will make playback a different speed, relative to the original speed.
+
+                if(p !== null){ //if motion happened at this frame
+                    ctx.current.fillStyle = 'green';
+                    ctx.current.fillRect(p.x - 16, p.y - 16, 32, 32);
+                    currentFrame += speedMultiple; //anything other than 1 will make playback a different speed, relative to the original speed.
+                }
+                //TODO IF NULL MAKE EMPTY FRAME
+                else {
+                    
+                }
             } else {
                 currentFrame = 0;
             }
         } else {
             ctx.current.fillStyle = 'white';
-            ctx.current.fillText("Press and hold to record, release to playback", 20, 20);
         }
     }
 
@@ -235,23 +225,15 @@ export default function RecordMotion({ref}) {
 
     return (
         <div>
-                
-            {/* 
-            TODO TRY CANVASREF.CURRENT. old version:
-            ref={(canvasRef) => this.context = canvasRef.current.getContext('2d')} */}
-            {/*TODO startRecording and stopRecording need to be called from parent using props 
-            of the parent's useStates, put the props inside a useEffect that has the props in 
-            the dependencies and they will auto update and call useEffect again. 
-            This will cause a rerender in the child i think so it should be fine since
- */}
             <canvas 
             ref={canvasRef}
-            onTouchStart={(e) => {e.preventDefault(); updatePosition(e);}}
+            onTouchStart={(e) => {e.preventDefault(); updatePosition(e); paint = true}}
             onTouchMove={(e) => {e.preventDefault(); updatePosition(e);}}
-            onPointerDown={(e) => {e.preventDefault(); updatePosition(e);}}
+            onPointerDown={(e) => {e.preventDefault(); updatePosition(e); paint = true}}
+            //TODO make isplaying off and isrecording off, so canvas just makes no red, and dont update position or make it null idk
+            onPointerUp={(e) => {e.preventDefault(); paint = false;}}
             id="canvas"
             ></canvas>
-
 
             <div id="ui">
                 <h3>Target FPS: <span id="myText"></span></h3>
