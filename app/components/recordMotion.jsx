@@ -34,7 +34,6 @@ export default function RecordMotion({ref}) {
                 mouseX = event.clientX - canvas.offsetLeft;
                 mouseY = event.clientY - canvas.offsetTop;
                 document.getElementById('sizeCounter').innerText = `Size: 0 bytes`;
-                paint = true;
             },
 
             stopRecording() { //starts playback 
@@ -43,7 +42,6 @@ export default function RecordMotion({ref}) {
                 isPlaying = true; 
                 recordingLength = data.length;
                 currentFrame = 0;
-                paint = false;
             },
             calculateSpeed(){
                 //TODO find speed necessary to do specific bpm
@@ -123,6 +121,8 @@ export default function RecordMotion({ref}) {
         mouseX = event.clientX - canvas.offsetLeft;
         mouseY = event.clientY - canvas.offsetTop;
         document.getElementById('sizeCounter').innerText = `Size: 0 bytes`;
+        paint = true;
+
     }
 
     function stopRecording() {
@@ -131,6 +131,8 @@ export default function RecordMotion({ref}) {
         isPlaying = true;
         recordingLength = data.length;
         currentFrame = 0;
+        paint = false;
+        
     }
 
     function updatePosition(event) {
@@ -176,12 +178,14 @@ export default function RecordMotion({ref}) {
                 if(p !== null){ //if motion happened at this frame
                     ctx.current.fillStyle = 'green';
                     ctx.current.fillRect(p.x - 16, p.y - 16, 32, 32);
-                    currentFrame += speedMultiple; //anything other than 1 will make playback a different speed, relative to the original speed.
                 }
                 //TODO IF NULL MAKE EMPTY FRAME
                 else {
-                    
+                    console.log('blank frame here');
                 }
+                
+                currentFrame += speedMultiple; //anything other than 1 will make playback a different speed, relative to the original speed.
+
             } else {
                 currentFrame = 0;
             }
@@ -228,6 +232,7 @@ export default function RecordMotion({ref}) {
             <canvas 
             ref={canvasRef}
             onTouchStart={(e) => {e.preventDefault(); updatePosition(e); paint = true}}
+            onTouchEnd={(e) => {e.preventDefault(); paint = false;}}
             onTouchMove={(e) => {e.preventDefault(); updatePosition(e);}}
             onPointerDown={(e) => {e.preventDefault(); updatePosition(e); paint = true}}
             //TODO make isplaying off and isrecording off, so canvas just makes no red, and dont update position or make it null idk
