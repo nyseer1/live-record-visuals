@@ -1,8 +1,8 @@
-import useCanvasCursor from './useCanvasCursor';
 import { useRef, useEffect } from 'react';
 
 export default function CanvasCursor() {
     //TODO FIND OUT HOW TO CROP THIS CANVAS INTO A DIV
+    //TODO update the logic to support pointer up/down as painting = true and painting = false
     
   const ctxRef = useRef(null);
     const fRef = useRef(null);
@@ -30,6 +30,7 @@ export default function CanvasCursor() {
       dampening: 0.25,
       tension: 0.98,
     };
+    let painting = true; //
   
     function PhaseWave({ phase = 0, offset = 0, frequency = 0.001, amplitude = 1 }) {
       let _phase = phase;
@@ -103,7 +104,7 @@ export default function CanvasCursor() {
       draw(ctx) {
         ctx.beginPath();
         ctx.moveTo(this.nodes[0].x, this.nodes[0].y);
-  
+
         for (let i = 1; i < this.nodes.length - 2; i++) {
           const c = this.nodes[i];
           const d = this.nodes[i + 1];
@@ -131,16 +132,34 @@ export default function CanvasCursor() {
     };
   
     const onMouseMove = (e) => {
-      const x = e.touches ? e.touches[0].pageX : e.clientX;
-      const y = e.touches ? e.touches[0].pageY : e.clientY;
-      
-      // Check if this is a touch start event (single touch)
-      if (e.type === 'touchstart' && e.touches.length === 1) {
-        startSpinnyEffect(x, y);
+      if(painting){
+        const x = e.touches ? e.touches[0].pageX : e.clientX;
+        const y = e.touches ? e.touches[0].pageY : e.clientY;
+        
+        // Check if this is a touch start event (single touch)
+        if (e.type === 'touchstart' && e.touches.length === 1) {
+          startSpinnyEffect(x, y);
+        }
+        
+        posRef.current.x = x;
+        posRef.current.y = y;
+        
       }
       
+      e.preventDefault();
+    };
+     const onPointerDown = (e) => {
+      const x = e.touches ? e.touches[0].pageX : e.clientX;
+      const y = e.touches ? e.touches[0].pageY : e.clientY;
+      startSpinnyEffect(x, y);
+      painting = true;
       posRef.current.x = x;
       posRef.current.y = y;
+      e.preventDefault();
+    };
+
+    const onPointerUp = (e) => {
+      painting = false;
       e.preventDefault();
     };
   
@@ -191,8 +210,11 @@ export default function CanvasCursor() {
         linesRef.current.push(new Line(0.4 + (i / E.trails) * 0.025));
       }
   
+      window.addEventListener("touchstart", onPointerDown);
+      window.addEventListener("touchend", onPointerUp);
+      window.addEventListener("mouseup", onPointerUp);
       window.addEventListener("mousemove", onMouseMove);
-      window.addEventListener("touchstart", onMouseMove);
+      window.addEventListener("mousedown", onPointerDown);
       window.addEventListener("touchmove", onMouseMove);
       window.addEventListener("resize", resizeCanvas);
       window.addEventListener("orientationchange", resizeCanvas);
@@ -211,8 +233,6 @@ export default function CanvasCursor() {
       };
     }, [E.trails]);
 
-  
-
   return (
     <canvas
       id="canvas"
@@ -225,6 +245,6 @@ export default function CanvasCursor() {
         width: '100vw',
         height: '100vh',
       }}
-    />
+    /> 
   );
 }

@@ -2,7 +2,7 @@
 import { PointerEvent, useRef, useState } from "react";
 import RecordMotion from "../components/WaveRecordMotion";
 
-export default function ToneJSContainer() {
+export default function TestingPage() {
 
   const recordMotionRef = useRef<any>(null);
   // const touchEventRef = useRef(null);
