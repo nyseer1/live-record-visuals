@@ -20,7 +20,7 @@ export default function ToneJSContainer() {
   return (
     <>
       {isMotion ? (
-        <button onPointerDown={(e) => {handleStopRecording(); setIsMotion(true)}}>Start Playback</button>
+        <button onPointerDown={(e) => {handleStopRecording();}}>Start Playback</button>
       ) : (
         <button onPointerDown={(e) => {handleStartRecording(e); setIsMotion(true)}}>
           Click here to start recording

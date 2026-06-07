@@ -52,9 +52,8 @@ export default function ToneJSContainer() {
     <div>
       {isTonejsOn ? (
         <div>
-          <CanvasCursor id='cursor'/>
+          <CanvasCursor/>
           {/* <RecordMotion/> */}
-          draw on the canvas here
         </div>
       ) : (
         <button onPointerDown={handleStartTonejs}>Start Player</button>
