@@ -131,7 +131,7 @@ export default function CanvasCursor() {
       spinRef.current.duration = spinRef.current.maxDuration;
     };
   
-    const onMouseMove = (e) => {
+    const onPointerMove = (e) => {
       if(painting){
         const x = e.touches ? e.touches[0].pageX : e.clientX;
         const y = e.touches ? e.touches[0].pageY : e.clientY;
@@ -213,9 +213,9 @@ export default function CanvasCursor() {
       window.addEventListener("touchstart", onPointerDown);
       window.addEventListener("touchend", onPointerUp);
       window.addEventListener("mouseup", onPointerUp);
-      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mousemove", onPointerMove);
       window.addEventListener("mousedown", onPointerDown);
-      window.addEventListener("touchmove", onMouseMove);
+      window.addEventListener("touchmove", onPointerMove);
       window.addEventListener("resize", resizeCanvas);
       window.addEventListener("orientationchange", resizeCanvas);
   
@@ -225,9 +225,12 @@ export default function CanvasCursor() {
       return () => {
         ctxRef.current.running = false;
         window.cancelAnimationFrame(animationFrameId.current);
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("touchstart", onMouseMove);
-        window.removeEventListener("touchmove", onMouseMove);
+        window.removeEventListener("touchstart", onPointerDown);
+        window.removeEventListener("touchend", onPointerUp);
+        window.removeEventListener("mouseup", onPointerUp);
+        window.removeEventListener("mousemove", onPointerMove);
+        window.removeEventListener("mousedown", onPointerDown);
+        window.removeEventListener("touchmove", onPointerMove);
         window.removeEventListener("resize", resizeCanvas);
         window.removeEventListener("orientationchange", resizeCanvas);
       };
