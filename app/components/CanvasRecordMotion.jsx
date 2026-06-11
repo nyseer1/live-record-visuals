@@ -3,7 +3,7 @@
 import { useEffect, useRef, useImperativeHandle } from "react";
 import "./recordMotion.css";
 
-export default function RecordMotion({ref}) {
+export default function CanvasRecordMotion({ref}) {
 
     let data = [];
     let currentFrame = 0;
@@ -100,7 +100,7 @@ export default function RecordMotion({ref}) {
     function resizeCanvas() {
         canvasRef.current.width = window.innerWidth;
         canvasRef.current.height = window.innerHeight;
-    }    
+    }
 
     function updateSizeCounter() {
         const jsonString = JSON.stringify(data, null, 2);

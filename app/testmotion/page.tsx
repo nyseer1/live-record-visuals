@@ -1,11 +1,10 @@
 "use client";
 import { PointerEvent, useRef, useState } from "react";
-import RecordMotion from "../components/WaveRecordMotion";
+import CanvasRecordMotion from "../components/CanvasRecordMotion";
 
 export default function TestingPage() {
 
   const recordMotionRef = useRef<any>(null);
-  // const touchEventRef = useRef(null);
   const [isMotion, setIsMotion] = useState(false);
 
   function handleStartRecording(e: PointerEvent<HTMLElement>){
@@ -26,7 +25,7 @@ export default function TestingPage() {
           Click here to start recording
         </button>
       )}
-      <RecordMotion ref={recordMotionRef} />
+      <CanvasRecordMotion ref={recordMotionRef} />
     </>
   );
 }
