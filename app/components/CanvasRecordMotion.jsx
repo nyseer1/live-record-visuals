@@ -188,6 +188,14 @@ export default function CanvasRecordMotion({ref}) {
         }
     }
 
+    //HANDLERS -------------------------------------------------------------------------------
+    function handlePointerDown(e){
+        e.preventDefault(); updatePosition(e); paint = true;}
+    function handlePointerUp(e){
+        e.preventDefault(); updatePosition(e); paint = false;}
+     function handlePointerMove(e){
+        e.preventDefault(); updatePosition(e);}
+
     function saveMotion() {
         const motionData = JSON.stringify(data, null, 2);
         const blob = new Blob([motionData], { type: 'application/json' });
@@ -225,12 +233,11 @@ export default function CanvasRecordMotion({ref}) {
         <div>
             <canvas 
             ref={canvasRef}
-            onTouchStart={(e) => {e.preventDefault(); updatePosition(e); paint = true}}
-            onTouchEnd={(e) => {e.preventDefault(); paint = false;}}
-            onTouchMove={(e) => {e.preventDefault(); updatePosition(e);}}
-            onPointerDown={(e) => {e.preventDefault(); updatePosition(e); paint = true}}
-            //TODO make isplaying off and isrecording off, so canvas just makes no red, and dont update position or make it null idk
-            onPointerUp={(e) => {e.preventDefault(); paint = false;}}
+            onTouchStart={handlePointerDown}
+            onTouchEnd={handlePointerUp}
+            onTouchMove={handlePointerMove}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
             id="canvas"
             ></canvas>
 
