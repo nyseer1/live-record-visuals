@@ -148,9 +148,10 @@ const useCanvasCursor = () => {
       linesRef.current.push(new Line(0.4 + (i / E.trails) * 0.025));
     }
 
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("touchstart", onMouseMove);
-    window.addEventListener("touchmove", onMouseMove);
+    //todo TRIGGER THESE FROM PARENT FUNCTION
+    // window.addEventListener("mousemove", onMouseMove);
+    // window.addEventListener("touchstart", onMouseMove);
+    // window.addEventListener("touchmove", onMouseMove);
     window.addEventListener("resize", resizeCanvas);
     window.addEventListener("orientationchange", resizeCanvas);
 

@@ -2,8 +2,10 @@
 //TODO make this a functional react component 
 import { useEffect, useRef, useImperativeHandle } from "react";
 import "./recordMotion.css";
+import useCanvasCursor from "./cursors/useCanvasCursor";
 
 export default function CanvasRecordMotion({ ref }) {
+
 
     //todo put useCursor here for custom cursor hook
 
@@ -156,13 +158,17 @@ export default function CanvasRecordMotion({ ref }) {
     }
 
     function draw() {
-        ctx.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); //always clear
+
+        //not needed with wavecursor hook
+        // ctx.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); //always clear
         if (recording) {
             if (paint) { //if mouse/touch down is happening, draw
                 data.push({ x: mouseX, y: mouseY });
                 // updateSizeCounter();
-                ctx.current.fillStyle = 'red';
-                ctx.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
+                //not needed with wavecursor hook
+                //ctx.current.fillStyle = 'red';
+                //ctx.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
+                //TODO trigger event onMouseMove from wavecursor methods, maybe with custom hook
             }
             else {
                 data.push(null);
@@ -173,8 +179,11 @@ export default function CanvasRecordMotion({ ref }) {
                 const p = data[Math.min(Math.round(currentFrame), recordingLength - 1)]; //min makes sure doesent index out of bounds, round makes sure the decimal is removed before searching the index
 
                 if (p !== null) { //if motion happened at this frame
-                    ctx.current.fillStyle = 'green';
-                    ctx.current.fillRect(p.x - 16, p.y - 16, 32, 32);
+                    //not needed with wavecursor hook
+                    //ctx.current.fillStyle = 'green';
+                    //ctx.current.fillRect(p.x - 16, p.y - 16, 32, 32);
+                    //TODO trigger event onMouseMove from wavecursor methods, maybe with custom hook
+
                 }
                 //TODO IF NULL MAKE EMPTY FRAME
                 else {
@@ -235,6 +244,7 @@ export default function CanvasRecordMotion({ ref }) {
     }
 
     // TODO TEST IF THE CANVAS EVENTS WORK
+    //TODO i might need to add events in useCanvasCursor to make sure it only paints when paint is true
     return (
         <div>
             <canvas
