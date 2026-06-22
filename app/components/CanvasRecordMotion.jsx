@@ -2,7 +2,6 @@
 //TODO make this a functional react component 
 import { useEffect, useRef, useImperativeHandle } from "react";
 import "./recordMotion.css";
-import useCanvasCursor from "./cursors/useCanvasCursor";
 
 export default function CanvasRecordMotion({ ref }) {
 
@@ -24,7 +23,7 @@ export default function CanvasRecordMotion({ ref }) {
     //ref to manipulate the DOM
     //(pass ref object as the ref attribute to JSX of DOM node to manipulate)
     const canvasRef = useRef(null);
-    const ctx = useRef(null); //context
+    const ctxRef = useRef(null); //context
 
     useImperativeHandle(ref, () => {
         return {
@@ -57,7 +56,7 @@ export default function CanvasRecordMotion({ ref }) {
         resizeCanvas();
         requestAnimationFrame(animate);
 
-        ctx.current = document.getElementById("canvas").getContext("2d");
+        ctxRef.current = document.getElementById("canvas").getContext("2d");
 
         //drag and drop file upload
         // const dropZone = document.getElementById('drop_zone');
@@ -160,15 +159,14 @@ export default function CanvasRecordMotion({ ref }) {
     function draw() {
 
         //not needed with wavecursor hook
-        // ctx.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); //always clear
+        ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); //always clear
         if (recording) {
             if (paint) { //if mouse/touch down is happening, draw
                 data.push({ x: mouseX, y: mouseY });
                 // updateSizeCounter();
                 //not needed with wavecursor hook
-                //ctx.current.fillStyle = 'red';
-                //ctx.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
-                //TODO trigger event onMouseMove from wavecursor methods, maybe with custom hook
+                ctxRef.current.fillStyle = 'red';
+                ctxRef.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
             }
             else {
                 data.push(null);
@@ -180,9 +178,8 @@ export default function CanvasRecordMotion({ ref }) {
 
                 if (p !== null) { //if motion happened at this frame
                     //not needed with wavecursor hook
-                    //ctx.current.fillStyle = 'green';
-                    //ctx.current.fillRect(p.x - 16, p.y - 16, 32, 32);
-                    //TODO trigger event onMouseMove from wavecursor methods, maybe with custom hook
+                    ctxRef.current.fillStyle = 'green';
+                    ctxRef.current.fillRect(p.x - 16, p.y - 16, 32, 32);
 
                 }
                 //TODO IF NULL MAKE EMPTY FRAME
@@ -195,7 +192,7 @@ export default function CanvasRecordMotion({ ref }) {
                 currentFrame = 0;
             }
         } else {
-            ctx.current.fillStyle = 'white';
+            ctxRef.current.fillStyle = 'white';
         }
     }
 

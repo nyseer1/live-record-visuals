@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-const useCanvasCursor = () => {
+const useCanvasCursor = ({ mouseEvent, isPainting }) => {
   const ctxRef = useRef(null);
   const fRef = useRef(null);
   const linesRef = useRef([]);
@@ -96,9 +96,8 @@ const useCanvasCursor = () => {
   }
 
   const onMouseMove = (e) => {
-    posRef.current.x = e.touches ? e.touches[0].pageX : e.clientX;
-    posRef.current.y = e.touches ? e.touches[0].pageY : e.clientY;
-    e.preventDefault();
+    posRef.current.x = e.clientX;
+    posRef.current.y = e.clientY;
   };
 
   const resizeCanvas = () => {
@@ -119,16 +118,24 @@ const useCanvasCursor = () => {
     ctx.strokeStyle = `hsla(${Math.round(fRef.current.update())}, 50%, 50%, 0.2)`;
     ctx.lineWidth = 1;
 
-    for (let i = 0; i < E.trails; i++) {
-      const line = linesRef.current[i];
-      line.update();
-      line.draw(ctx);
+    //todo this should make the lines only draw when button is held down
+    if (isPainting) {
+      for (let i = 0; i < E.trails; i++) {
+        const line = linesRef.current[i];
+        line.update();
+        line.draw(ctx);
+      }
     }
     ctx.frame++;
     animationFrameId.current = requestAnimationFrame(render);
   };
 
   useEffect(() => {
+
+    //TODO this should call the draw method, test later.
+    console.log('re-render here');
+    onMouseMove(mouseEvent);
+
     const canvas = document.getElementById("canvas");
     if (!canvas) return;
 
@@ -148,7 +155,7 @@ const useCanvasCursor = () => {
       linesRef.current.push(new Line(0.4 + (i / E.trails) * 0.025));
     }
 
-    //todo TRIGGER THESE FROM PARENT FUNCTION
+    //todo have onMouseMove trigger from parent
     // window.addEventListener("mousemove", onMouseMove);
     // window.addEventListener("touchstart", onMouseMove);
     // window.addEventListener("touchmove", onMouseMove);
@@ -161,13 +168,13 @@ const useCanvasCursor = () => {
     return () => {
       ctxRef.current.running = false;
       window.cancelAnimationFrame(animationFrameId.current);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("touchstart", onMouseMove);
-      window.removeEventListener("touchmove", onMouseMove);
+      // window.removeEventListener("mousemove", onMouseMove);
+      // window.removeEventListener("touchstart", onMouseMove);
+      // window.removeEventListener("touchmove", onMouseMove);
       window.removeEventListener("resize", resizeCanvas);
       window.removeEventListener("orientationchange", resizeCanvas);
     };
-  }, []);
+  },);
 };
 
 export default useCanvasCursor;
