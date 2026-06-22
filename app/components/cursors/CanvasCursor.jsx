@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const useCanvasCursor = () => {
   const ctxRef = useRef(null);
+  const canvasRef = useState(null);
   const fRef = useRef(null);
   const linesRef = useRef([]);
   // const posRef = useRef({
@@ -112,7 +113,7 @@ const useCanvasCursor = () => {
     const ctx = ctxRef.current;
 
     ctx.globalCompositeOperation = "source-over";
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.clearRect(0, 0, ctx.canvasRef.current.width, ctx.canvasRef.current.height);
 
     ctx.globalCompositeOperation = "lighter";
     ctx.strokeStyle = `hsla(${Math.round(fRef.current.update())}, 50%, 50%, 0.2)`;
@@ -132,10 +133,11 @@ const useCanvasCursor = () => {
 
   useEffect(() => {
 
-    const canvas = document.getElementById("canvas");
-    if (!canvas) return;
-
+    //todo this part can be deletede when copied to my record
+    canvasRef.current = document.getElementById("canvas");
     ctxRef.current = canvas.getContext("2d");
+
+    if (canvasRef.current === null) return;
     ctxRef.current.running = true;
     ctxRef.current.frame = 1;
 
@@ -151,22 +153,18 @@ const useCanvasCursor = () => {
       linesRef.current.push(new Line(0.4 + (i / E.trails) * 0.025));
     }
 
-    //todo have onMouseMove trigger from parent
-    // window.addEventListener("mousemove", onMouseMove);
-    // window.addEventListener("touchstart", onMouseMove);
-    // window.addEventListener("touchmove", onMouseMove);
+    //todo this part can be deletede when copied to my record
     window.addEventListener("resize", resizeCanvas);
     window.addEventListener("orientationchange", resizeCanvas);
-
     resizeCanvas();
+
+    //todo might need
     animationFrameId.current = window.requestAnimationFrame(render);
 
     return () => {
       ctxRef.current.running = false;
+      //todo this part can be deletede when copied to my record
       window.cancelAnimationFrame(animationFrameId.current);
-      // window.removeEventListener("mousemove", onMouseMove);
-      // window.removeEventListener("touchstart", onMouseMove);
-      // window.removeEventListener("touchmove", onMouseMove);
       window.removeEventListener("resize", resizeCanvas);
       window.removeEventListener("orientationchange", resizeCanvas);
     };
