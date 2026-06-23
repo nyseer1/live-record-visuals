@@ -1,14 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import * as Tone from "tone";
-import CanvasCursor from "./components/cursors/CanvasCursor";
-import RecordMotion from "./components/recordMotion";
+import CanvasRecordMotion from "./components/CanvasRecordMotion";
 
 export default function ToneJSContainer() {
   const [isTonejsOn, setIsTonejsOn] = useState(false);
 
   //TODO useRef to store data that is not needed for render (like a sequence array)
-  
+  const customCanvasRef = useRef(null);
   
   async function handleStartTonejs() {
     //async function means run this function asynchronously so other code can be executed during loading
@@ -33,7 +32,8 @@ export default function ToneJSContainer() {
         Tone.Draw.schedule(() => {
           
 				// the callback synced to the animation frame at the given time here
-				
+        //todo call the start record and stop record functions at step 0
+				customCanvasRef.current;
         
 			}, time);
 
@@ -52,7 +52,7 @@ export default function ToneJSContainer() {
     <div>
       {isTonejsOn ? (
         <div>
-          <CanvasCursor/>
+          <CanvasRecordMotion ref={customCanvasRef}/>
           {/* <RecordMotion/> */}
         </div>
       ) : (
