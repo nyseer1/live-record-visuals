@@ -25,7 +25,6 @@ export default function CanvasRecordMotion({ ref }) {
     const canvasRef = useRef(null);
     const ctxRef = useRef(null); //context
 
-
     //cursor
     const fRef = useRef(null);
     const linesRef = useRef([]);
@@ -156,22 +155,26 @@ export default function CanvasRecordMotion({ ref }) {
 
     useImperativeHandle(ref, () => {
         return {
-            startRecording(event) { //clears old recording, i could make it overwrite ontop of previous
-                recording = true;
-                isPlaying = false;
-                data = [];
-                recordingLength = 0;
-                mouseX = event.clientX - canvas.offsetLeft;
-                mouseY = event.clientY - canvas.offsetTop;
+            handleRecording() { //clears old recording, i could make it overwrite ontop of previous
+                if (!recording) {
+                    recording = true;
+                    isPlaying = false;
+                    data = [];
+                    recordingLength = 0;
+                }
+                else { //stop rec
+                    recording = false;
+                    isPlaying = true;
+                    recordingLength = data.length;
+                    currentFrame = 0;
+                }
+
+
+                // mouseX = event.clientX - canvas.offsetLeft;
+                // mouseY = event.clientY - canvas.offsetTop;
                 // document.getElementById('sizeCounter').innerText = `Size: 0 bytes`; //save/load file (file size)
             },
 
-            stopRecording() { //starts playback 
-                recording = false;
-                isPlaying = true;
-                recordingLength = data.length;
-                currentFrame = 0;
-            },
             calculateSpeed() {
                 //TODO find speed necessary to do specific bpm
             }

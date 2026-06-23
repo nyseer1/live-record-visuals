@@ -30,15 +30,21 @@ export default function ToneJSContainer() {
 
         //draw on schedule
         Tone.Draw.schedule(() => {
-          
+        
 				// the callback synced to the animation frame at the given time here
         //todo call the start record and stop record functions at step 0
-				customCanvasRef.current;
+        console.log("print");
+        if(note === 0){
+          console.log("resetting now");
+          customCanvasRef.current.handleRecording();
+        }
+				// customCanvasRef.current.handleRecording();
         
 			}, time);
 
        //index of sequence array
       }, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]).start(0);
+
       Tone.getTransport().start(); //start transport(player)
       //TODO test with metronome later to see if bpm is accurate. https://github.com/Tonejs/Tone.js/wiki/Performance
 
