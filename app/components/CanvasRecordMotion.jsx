@@ -143,12 +143,11 @@ export default function CanvasRecordMotion({ ref }) {
         ctx.lineWidth = 1;
 
         //todo this should make the lines only draw when button is held down
-        if (isPainting) {
-            for (let i = 0; i < E.trails; i++) {
-                const line = linesRef.current[i];
-                line.update();
-                line.draw(ctx);
-            }
+        for (let i = 0; i < E.trails; i++) {
+            const line = linesRef.current[i];
+            line.update();
+            line.draw(ctx);
+
         }
         ctx.frame++;
         //replaced with one inside main draw method
@@ -184,8 +183,8 @@ export default function CanvasRecordMotion({ ref }) {
         //these are done after DOM is rendered.
         //everything only called once
         resizeCanvas();
-        // animationFrameId.current = requestAnimationFrame(animate);
-        requestAnimationFrame(animate);
+        animationFrameId.current = requestAnimationFrame(animate);
+        // requestAnimationFrame(animate);
 
         ctxRef.current = document.getElementById("canvas").getContext("2d");
 
@@ -209,6 +208,24 @@ export default function CanvasRecordMotion({ ref }) {
 
         // });
 
+        //glowing wavy line cursor
+        if (canvasRef.current === null) return;
+        ctxRef.current.running = true;
+        ctxRef.current.frame = 1;
+
+        fRef.current = PhaseWave({
+            phase: Math.random() * 2 * Math.PI,
+            amplitude: 85,
+            frequency: 0.0015,
+            offset: 285,
+        });
+
+        linesRef.current = [];
+        for (let i = 0; i < E.trails; i++) {
+            linesRef.current.push(new Line(0.4 + (i / E.trails) * 0.025));
+        }
+
+
 
 
         window.addEventListener('resize', resizeCanvas);
@@ -224,6 +241,8 @@ export default function CanvasRecordMotion({ ref }) {
         // document.getElementById("myText").innerHTML = targetFPS;
         return () => {
             //destroy the canvas 
+            ctxRef.current.running = false;
+
         };
     }, []);
 
@@ -287,21 +306,27 @@ export default function CanvasRecordMotion({ ref }) {
         }
 
         // Always request next frame, even if nothing was changed
-        // animationFrameId.current = requestAnimationFrame(render);
-        requestAnimationFrame(animate);
+        animationFrameId.current = requestAnimationFrame(animate);
+        // requestAnimationFrame(animate);
     }
 
     function draw() {
 
-        //not needed with wavecursor hook
-        ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); //always clear
+        //use clearRect unless another render func calls it
+        // ctxRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); //always clear
         if (recording) {
+
+            //glowing wavy line cursor
+            render();
+
             if (paint) { //if mouse/touch down is happening, draw
                 data.push({ x: mouseX, y: mouseY });
                 // updateSizeCounter();
-                //not needed with wavecursor hook
-                ctxRef.current.fillStyle = 'red';
-                ctxRef.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
+
+                //simple green box curosor
+                // ctxRef.current.fillStyle = 'red';
+                // ctxRef.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
+
             }
             else {
                 data.push(null);
@@ -311,10 +336,21 @@ export default function CanvasRecordMotion({ ref }) {
             if (currentFrame < recordingLength) { //p is frame
                 const p = data[Math.min(Math.round(currentFrame), recordingLength - 1)]; //min makes sure doesent index out of bounds, round makes sure the decimal is removed before searching the index
 
+                //glowing wavy line cursor
+                render();
+
                 if (p !== null) { //if motion happened at this frame
-                    //not needed with wavecursor hook
-                    ctxRef.current.fillStyle = 'green';
-                    ctxRef.current.fillRect(p.x - 16, p.y - 16, 32, 32);
+
+
+
+                    //simple green box curosor
+                    // ctxRef.current.fillStyle = 'green';
+                    // ctxRef.current.fillRect(p.x - 16, p.y - 16, 32, 32);
+
+
+                    //update position based on recorded data for custom cursors
+                    posRef.current.x = p.x;
+                    posRef.current.y = p.y;
 
                 }
                 //TODO IF NULL MAKE EMPTY FRAME
@@ -326,8 +362,6 @@ export default function CanvasRecordMotion({ ref }) {
             } else {
                 currentFrame = 0;
             }
-        } else {
-            ctxRef.current.fillStyle = 'white';
         }
     }
 
@@ -367,16 +401,17 @@ export default function CanvasRecordMotion({ ref }) {
     //HANDLERS -------------------------------------------------------------------------------
     function handlePointerDown(e) {
         e.preventDefault(); updatePosition(e); paint = true;
-        // onMouseMove(e);
+        onMouseMove(e);
     }
     function handlePointerUp(e) {
         e.preventDefault(); updatePosition(e); paint = false;
-        // onMouseMove(e);
+        onMouseMove(e);
 
     }
     function handlePointerMove(e) {
+        if (e.buttons !== 1) return; //confirm that user is either left clicking or touching (necessary on pointerMove events to prevent overlapping on pointerDown events)
         e.preventDefault(); updatePosition(e);
-        // onMouseMove(e);
+        onMouseMove(e);
     }
 
     // TODO TEST IF THE CANVAS EVENTS WORK
@@ -389,6 +424,7 @@ export default function CanvasRecordMotion({ ref }) {
                 onTouchEnd={(e) => handlePointerUp(e)}
                 onTouchMove={(e) => handlePointerMove(e)}
                 onPointerDown={(e) => handlePointerDown(e)}
+                onPointerMove={(e) => handlePointerMove(e)}
                 onPointerUp={(e) => handlePointerUp(e)}
                 id="canvas"
             ></canvas>
