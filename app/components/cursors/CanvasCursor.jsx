@@ -116,7 +116,7 @@ const useCanvasCursor = () => {
     const ctx = ctxRef.current;
 
     ctx.globalCompositeOperation = "source-over";
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.clearRect(0, 0, ctx.canvasRef.current.width, ctx.canvasRef.current.height);
 
     ctx.globalCompositeOperation = "lighter";
     ctx.strokeStyle = `hsla(${Math.round(fRef.current.update())}, 50%, 50%, 0.2)`;
