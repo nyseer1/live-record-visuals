@@ -32,10 +32,10 @@ export default function CanvasRecordMotion({ ref }) {
     //   x: window.innerWidth / 2,
     //   y: window.innerHeight / 2,
     // });
-    //TODO test this change
+
     const posRef = useRef({
-        x: 2,
-        y: 2,
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
     });
     const animationFrameId = useRef(null);
 
