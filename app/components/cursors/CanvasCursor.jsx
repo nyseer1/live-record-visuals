@@ -3,6 +3,9 @@ import { useEffect, useRef, useState } from "react";
 const useCanvasCursor = () => {
   const ctxRef = useRef(null);
   const canvasRef = useState(null);
+
+
+  //todo copy these: ------------------------------
   const fRef = useRef(null);
   const linesRef = useRef([]);
   // const posRef = useRef({
@@ -113,7 +116,7 @@ const useCanvasCursor = () => {
     const ctx = ctxRef.current;
 
     ctx.globalCompositeOperation = "source-over";
-    ctx.clearRect(0, 0, ctx.canvasRef.current.width, ctx.canvasRef.current.height);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     ctx.globalCompositeOperation = "lighter";
     ctx.strokeStyle = `hsla(${Math.round(fRef.current.update())}, 50%, 50%, 0.2)`;
@@ -130,6 +133,7 @@ const useCanvasCursor = () => {
     ctx.frame++;
     animationFrameId.current = requestAnimationFrame(render);
   };
+
 
   useEffect(() => {
 

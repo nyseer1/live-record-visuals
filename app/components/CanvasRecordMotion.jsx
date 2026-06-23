@@ -25,6 +25,136 @@ export default function CanvasRecordMotion({ ref }) {
     const canvasRef = useRef(null);
     const ctxRef = useRef(null); //context
 
+
+    //cursor
+    const fRef = useRef(null);
+    const linesRef = useRef([]);
+    // const posRef = useRef({
+    //   x: window.innerWidth / 2,
+    //   y: window.innerHeight / 2,
+    // });
+    //TODO test this change
+    const posRef = useRef({
+        x: 2,
+        y: 2,
+    });
+    const animationFrameId = useRef(null);
+
+    const E = {
+        friction: 0.5,
+        trails: 20,
+        size: 50,
+        dampening: 0.25,
+        tension: 0.98,
+    };
+
+    function PhaseWave({ phase = 0, offset = 0, frequency = 0.001, amplitude = 1 }) {
+        let _phase = phase;
+        return {
+            update() {
+                _phase += frequency;
+                return offset + Math.sin(_phase) * amplitude;
+            },
+        };
+    }
+
+    class Node {
+        constructor(x, y) {
+            this.x = x || 0;
+            this.y = y || 0;
+            this.vx = 0;
+            this.vy = 0;
+        }
+    }
+
+    class Line {
+        constructor(spring) {
+            this.spring = spring + 0.1 * Math.random() - 0.02;
+            this.friction = E.friction + 0.01 * Math.random() - 0.002;
+            this.nodes = [];
+            for (let i = 0; i < E.size; i++) {
+                this.nodes.push(new Node(posRef.current.x, posRef.current.y));
+            }
+        }
+
+        update() {
+            let spring = this.spring;
+            let t = this.nodes[0];
+            t.vx += (posRef.current.x - t.x) * spring;
+            t.vy += (posRef.current.y - t.y) * spring;
+
+            for (let i = 0; i < this.nodes.length; i++) {
+                t = this.nodes[i];
+                if (i > 0) {
+                    const prev = this.nodes[i - 1];
+                    t.vx += (prev.x - t.x) * spring;
+                    t.vy += (prev.y - t.y) * spring;
+                    t.vx += prev.vx * E.dampening;
+                    t.vy += prev.vy * E.dampening;
+                }
+                t.vx *= this.friction;
+                t.vy *= this.friction;
+                t.x += t.vx;
+                t.y += t.vy;
+                spring *= E.tension;
+            }
+        }
+
+        draw(ctx) {
+            ctx.beginPath();
+            ctx.moveTo(this.nodes[0].x, this.nodes[0].y);
+
+            for (let i = 1; i < this.nodes.length - 2; i++) {
+                const c = this.nodes[i];
+                const d = this.nodes[i + 1];
+                const xc = (c.x + d.x) / 2;
+                const yc = (c.y + d.y) / 2;
+                ctx.quadraticCurveTo(c.x, c.y, xc, yc);
+            }
+            // curve through the last two points
+            const secondLast = this.nodes[this.nodes.length - 2];
+            const last = this.nodes[this.nodes.length - 1];
+            ctx.quadraticCurveTo(secondLast.x, secondLast.y, last.x, last.y);
+            ctx.stroke();
+            ctx.closePath();
+        }
+    }
+
+    const onMouseMove = (e) => {
+        posRef.current.x = e.clientX;
+        posRef.current.y = e.clientY;
+    };
+
+    // const resizeCanvas = () => {
+    //     if (!ctxRef.current) return;
+    //     const canvas = ctxRef.current.canvas;
+    //     canvas.width = window.innerWidth - 20;
+    //     canvas.height = window.innerHeight;
+    // };
+
+    const render = () => {
+        if (!ctxRef.current) return;
+        const ctx = ctxRef.current;
+
+        ctx.globalCompositeOperation = "source-over";
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.globalCompositeOperation = "lighter";
+        ctx.strokeStyle = `hsla(${Math.round(fRef.current.update())}, 50%, 50%, 0.2)`;
+        ctx.lineWidth = 1;
+
+        //todo this should make the lines only draw when button is held down
+        if (isPainting) {
+            for (let i = 0; i < E.trails; i++) {
+                const line = linesRef.current[i];
+                line.update();
+                line.draw(ctx);
+            }
+        }
+        ctx.frame++;
+        //replaced with one inside main draw method
+        // animationFrameId.current = requestAnimationFrame(render); 
+    };
+
     useImperativeHandle(ref, () => {
         return {
             startRecording(event) { //clears old recording, i could make it overwrite ontop of previous
@@ -54,6 +184,7 @@ export default function CanvasRecordMotion({ ref }) {
         //these are done after DOM is rendered.
         //everything only called once
         resizeCanvas();
+        // animationFrameId.current = requestAnimationFrame(animate);
         requestAnimationFrame(animate);
 
         ctxRef.current = document.getElementById("canvas").getContext("2d");
@@ -75,7 +206,10 @@ export default function CanvasRecordMotion({ ref }) {
         //     dropZone.style.backgroundColor = '#222';
         //     const file = e.dataTransfer.files[0];
         //     loadMotionFromFile(file);
+
         // });
+
+
 
         window.addEventListener('resize', resizeCanvas);
 
@@ -153,6 +287,7 @@ export default function CanvasRecordMotion({ ref }) {
         }
 
         // Always request next frame, even if nothing was changed
+        // animationFrameId.current = requestAnimationFrame(render);
         requestAnimationFrame(animate);
     }
 
@@ -232,12 +367,16 @@ export default function CanvasRecordMotion({ ref }) {
     //HANDLERS -------------------------------------------------------------------------------
     function handlePointerDown(e) {
         e.preventDefault(); updatePosition(e); paint = true;
+        // onMouseMove(e);
     }
     function handlePointerUp(e) {
         e.preventDefault(); updatePosition(e); paint = false;
+        // onMouseMove(e);
+
     }
     function handlePointerMove(e) {
         e.preventDefault(); updatePosition(e);
+        // onMouseMove(e);
     }
 
     // TODO TEST IF THE CANVAS EVENTS WORK
