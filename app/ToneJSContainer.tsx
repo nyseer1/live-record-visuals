@@ -59,7 +59,7 @@ export default function ToneJSContainer() {
         <div>
           <CanvasRecordMotion ref={customCanvasRef} />
           {/* <span>{}</span> */}
-          <br style={{ lineHeight: "20" }} />
+          <br style={{ lineHeight: "50" }} />
           <span>Made By Nyseer Couse</span>
           {/* <RecordMotion/> */}
         </div>

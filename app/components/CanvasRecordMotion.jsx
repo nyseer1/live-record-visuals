@@ -1,7 +1,6 @@
 'use client'
 //TODO make this a functional react component 
 import { useEffect, useRef, useImperativeHandle } from "react";
-import "./recordMotion.css";
 
 export default function CanvasRecordMotion({ ref }) {
 
@@ -427,6 +426,7 @@ export default function CanvasRecordMotion({ ref }) {
                 onPointerMove={(e) => handlePointerMove(e)}
                 onPointerUp={(e) => handlePointerUp(e)}
                 id="canvas"
+                style={{ border: ' 1px solid #aacccc' }}
             > </canvas>
 
             {/* save/load motion */}
