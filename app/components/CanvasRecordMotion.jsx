@@ -120,8 +120,15 @@ export default function CanvasRecordMotion({ ref }) {
     }
 
     const onMouseMove = (e) => {
-        posRef.current.x = e.clientX;
-        posRef.current.y = e.clientY;
+        if (!canvasRef.current) return;
+        //find the scaling of the canvas
+        const rect = canvasRef.current.getBoundingClientRect();
+        const scaleX = canvasRef.current.width / rect.width;
+        const scaleY = canvasRef.current.height / rect.height;
+
+        //screen xy to canvas xy based on scaling
+        posRef.current.x = (e.clientX - rect.left) * scaleX;
+        posRef.current.y = (e.clientY - rect.top) * scaleY;
     };
 
     // const resizeCanvas = () => {
@@ -135,13 +142,12 @@ export default function CanvasRecordMotion({ ref }) {
         if (!ctxRef.current) return;
         const ctx = ctxRef.current;
 
-        ctx.globalCompositeOperation = "source-over";
+        // ctx.globalCompositeOperation = "source-over";
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.globalCompositeOperation = "lighter";
         ctx.strokeStyle = `hsla(${Math.round(fRef.current.update())}, 50%, 50%, 0.2)`;
         ctx.lineWidth = 1;
 
-        //todo this should make the lines only draw when button is held down
         for (let i = 0; i < E.trails; i++) {
             const line = linesRef.current[i];
             line.update();
@@ -249,16 +255,14 @@ export default function CanvasRecordMotion({ ref }) {
         };
     }, []);
 
-    //TODO TURN THE EVENT LISTENERS (that arent window because window isnt being referenced) into react events & handlers 
-
     //FPS CAP
     const targetFPS = 60;
     const targetFrameDuration = 1000 / targetFPS; // ~16.67ms  
     let lastTime = 0;
 
     function resizeCanvas() {
-        canvasRef.current.width = window.innerWidth;
-        canvasRef.current.height = window.innerHeight;
+        canvasRef.current.width = window.innerWidth / 2;
+        canvasRef.current.height = window.innerHeight / 2;
     }
 
     function updateSizeCounter() {
@@ -344,22 +348,15 @@ export default function CanvasRecordMotion({ ref }) {
 
                 if (p !== null) { //if motion happened at this frame
 
-
-
                     //simple green box curosor
                     // ctxRef.current.fillStyle = 'green';
                     // ctxRef.current.fillRect(p.x - 16, p.y - 16, 32, 32);
-
 
                     //update position based on recorded data for custom cursors
                     posRef.current.x = p.x;
                     posRef.current.y = p.y;
 
                 }
-                //TODO IF NULL MAKE EMPTY FRAME
-                else {
-                }
-
                 currentFrame += speedMultiple; //anything other than 1 will make playback a different speed, relative to the original speed.
 
             } else {
@@ -420,7 +417,7 @@ export default function CanvasRecordMotion({ ref }) {
     // TODO TEST IF THE CANVAS EVENTS WORK
     //TODO i might need to add events in useCanvasCursor to make sure it only paints when paint is true
     return (
-        <div>
+        <div >
             <canvas
                 ref={canvasRef}
                 onTouchStart={(e) => handlePointerDown(e)}
@@ -430,7 +427,7 @@ export default function CanvasRecordMotion({ ref }) {
                 onPointerMove={(e) => handlePointerMove(e)}
                 onPointerUp={(e) => handlePointerUp(e)}
                 id="canvas"
-            ></canvas>
+            > </canvas>
 
             {/* save/load motion */}
             {/* <div id="ui">

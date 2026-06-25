@@ -5,10 +5,12 @@ import CanvasRecordMotion from "./components/CanvasRecordMotion";
 
 export default function ToneJSContainer() {
   const [isTonejsOn, setIsTonejsOn] = useState(false);
+  // Get the Draw object using the new function
+  const draw = Tone.getDraw();
 
   //TODO useRef to store data that is not needed for render (like a sequence array)
   const customCanvasRef = useRef(null);
-  
+
   async function handleStartTonejs() {
     //async function means run this function asynchronously so other code can be executed during loading
 
@@ -23,34 +25,31 @@ export default function ToneJSContainer() {
 
       //start audio sequencer
       const synth = new Tone.Synth().toDestination();
-      const seq = new Tone.Sequence((time, note) => {
+      const seq = new Tone.Sequence(
+        (time, note) => {
+          //trigger notes/audio here
 
-        //trigger notes/audio here
+          //trigger visuals on schedule here
+          draw.schedule(() => {
+            // the callback synced to the animation frame at the given time here
+            if (note === 0) {
+              //sequence start
+              customCanvasRef.current.handleRecording(); //start/stop
+            }
 
+            //todo visual trnasport time
+          }, time); //this syncs it to transport time
 
-        //draw on schedule
-        Tone.Draw.schedule(() => {
-        
-				// the callback synced to the animation frame at the given time here
-        //todo call the start record and stop record functions at step 0
-        console.log("print");
-        if(note === 0){
-          console.log("resetting now");
-          customCanvasRef.current.handleRecording();
-        }
-				// customCanvasRef.current.handleRecording();
-        
-			}, time);
-
-       //index of sequence array
-      }, [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]).start(0);
+          //index of sequence array
+        },
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      ).start(0);
 
       Tone.getTransport().start(); //start transport(player)
       //TODO test with metronome later to see if bpm is accurate. https://github.com/Tonejs/Tone.js/wiki/Performance
 
       //open up visuals
       setIsTonejsOn(true);
-      
     }
   }
 
@@ -58,7 +57,10 @@ export default function ToneJSContainer() {
     <div>
       {isTonejsOn ? (
         <div>
-          <CanvasRecordMotion ref={customCanvasRef}/>
+          <CanvasRecordMotion ref={customCanvasRef} />
+          {/* <span>{}</span> */}
+          <br style={{ lineHeight: "20" }} />
+          <span>Made By Nyseer Couse</span>
           {/* <RecordMotion/> */}
         </div>
       ) : (
