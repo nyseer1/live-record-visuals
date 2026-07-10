@@ -15,7 +15,7 @@ export default function CanvasRecordMotion({ ref }) {
     let mouseX = 0;
     let mouseY = 0;
     let recordingLength = 0;
-    let saveCounter = 1;
+    // let saveCounter = 1;
     let speedMultiple = 1;
     let paint = false;
 
@@ -143,6 +143,7 @@ export default function CanvasRecordMotion({ ref }) {
 
         // ctx.globalCompositeOperation = "source-over";
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        //todo look into this https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
         ctx.globalCompositeOperation = "lighter";
         ctx.strokeStyle = `hsla(${Math.round(fRef.current.update())}, 50%, 50%, 0.2)`;
         ctx.lineWidth = 1;
@@ -242,7 +243,7 @@ export default function CanvasRecordMotion({ ref }) {
         //     if (recording) stopRecording();
         // });
 
-        window.addEventListener('pointermove', function (event) {
+        window.addEventListener('pointermove', (event) => {
             if (recording) updatePosition(event);
         });
 
@@ -252,7 +253,7 @@ export default function CanvasRecordMotion({ ref }) {
             ctxRef.current.running = false;
 
         };
-    }, []);
+    },);
 
     //FPS CAP
     const targetFPS = 60;
@@ -264,33 +265,33 @@ export default function CanvasRecordMotion({ ref }) {
         canvasRef.current.height = window.innerHeight / 2;
     }
 
-    function updateSizeCounter() {
+    function _updateSizeCounter() {
         const jsonString = JSON.stringify(data, null, 2);
         const bytes = new Blob([jsonString]).size;
         document.getElementById('sizeCounter').innerText = `Size: ${bytes} bytes`;
     }
 
-    function startRecording(event) {
-        getPosition(event); //sets coord.x and coord.y
-        recording = true;
-        isPlaying = false;
-        data = [];
-        recordingLength = 0;
-        mouseX = event.clientX - canvas.offsetLeft;
-        mouseY = event.clientY - canvas.offsetTop;
-        // document.getElementById('sizeCounter').innerText = `Size: 0 bytes`; //save/load file (file size)
-        paint = true;
+    // function startRecording(event) {
+    //     getPosition(event); //sets coord.x and coord.y
+    //     recording = true;
+    //     isPlaying = false;
+    //     data = [];
+    //     recordingLength = 0;
+    //     mouseX = event.clientX - canvas.offsetLeft;
+    //     mouseY = event.clientY - canvas.offsetTop;
+    //     // document.getElementById('sizeCounter').innerText = `Size: 0 bytes`; //save/load file (file size)
+    //     paint = true;
 
-    }
+    // }
 
-    function stopRecording() {
-        recording = false;
-        isPlaying = true;
-        recordingLength = data.length;
-        currentFrame = 0;
-        paint = false;
+    // function stopRecording() {
+    //     recording = false;
+    //     isPlaying = true;
+    //     recordingLength = data.length;
+    //     currentFrame = 0;
+    //     paint = false;
 
-    }
+    // }
 
     function updatePosition(event) {
         mouseX = event.clientX - canvas.offsetLeft;
@@ -364,38 +365,38 @@ export default function CanvasRecordMotion({ ref }) {
         }
     }
 
-    function saveMotion() {
-        const motionData = JSON.stringify(data, null, 2);
-        const blob = new Blob([motionData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const filename = `motion_data_${saveCounter++}.json`;
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
+    // function saveMotion() {
+    //     const motionData = JSON.stringify(data, null, 2);
+    //     const blob = new Blob([motionData], { type: 'application/json' });
+    //     const url = URL.createObjectURL(blob);
+    //     const filename = `motion_data_${saveCounter++}.json`;
+    //     const a = document.createElement('a');
+    //     a.style.display = 'none';
+    //     a.href = url;
+    //     a.download = filename;
+    //     document.body.appendChild(a);
+    //     a.click();
+    //     document.body.removeChild(a);
+    //     URL.revokeObjectURL(url);
+    // }
 
-    function loadMotionFromFile(file) {
-        const reader = new FileReader();
-        reader.onload = function (event) {
-            try {
-                const loadedData = JSON.parse(event.target.result);
-                data = loadedData;
-                recordingLength = data.length;
-                currentFrame = 0;
-                isPlaying = true;
-                document.getElementById('statusMessage').innerText = 'Motion data loaded successfully.';
-                // updateSizeCounter();
-            } catch (e) {
-                document.getElementById('statusMessage').innerText = 'Failed to load motion data.';
-            }
-        };
-        reader.readAsText(file);
-    }
+    // function loadMotionFromFile(file) {
+    //     const reader = new FileReader();
+    //     reader.onload = function (event) {
+    //         try {
+    //             const loadedData = JSON.parse(event.target.result);
+    //             data = loadedData;
+    //             recordingLength = data.length;
+    //             currentFrame = 0;
+    //             isPlaying = true;
+    //             document.getElementById('statusMessage').innerText = 'Motion data loaded successfully.';
+    //             // updateSizeCounter();
+    //         } catch (e) {
+    //             document.getElementById('statusMessage').innerText = 'Failed to load motion data.';
+    //         }
+    //     };
+    //     reader.readAsText(file);
+    // }
 
     //HANDLERS -------------------------------------------------------------------------------
     function handlePointerDown(e) {

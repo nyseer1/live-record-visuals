@@ -5,20 +5,17 @@ import CanvasRecordMotion from "./components/CanvasRecordMotion";
 
 export default function ToneJSContainer() {
   const [isTonejsOn, setIsTonejsOn] = useState(false);
-  // Get the Draw object using the new function
-  const draw = Tone.getDraw();
+  const draw = Tone.getDraw(); //new func to get draw object
+  const [beat, setBeat] = useState(0);
 
   //TODO useRef to store data that is not needed for render (like a sequence array)
-  const customCanvasRef = useRef(null);
+  const customCanvasRef = useRef(null); //to ref html canvas
 
   async function handleStartTonejs() {
-    //async function means run this function asynchronously so other code can be executed during loading
-
+    //async = run func asynchronously so other code can run simultaneously
     try {
-      // wait for audio context to start before playing audio
-      await Tone.start(); //await says wait here until this calculation is done
+      await Tone.start(); //await = wait until calc done, tone.start start audio context
     } catch (error) {
-      // only runs in the browser where the window object and AudioContext are available
       console.error("web audio api not supported !!! :(", error);
     } finally {
       console.warn("audio is ready");
@@ -28,18 +25,17 @@ export default function ToneJSContainer() {
       const seq = new Tone.Sequence(
         (time, note) => {
           //trigger notes/audio here
-
           //trigger visuals on schedule here
+
+          const noteRef = note;
           draw.schedule(() => {
             // the callback synced to the animation frame at the given time here
             if (note === 0) {
               //sequence start
               customCanvasRef.current.handleRecording(); //start/stop
             }
-
-            //todo visual trnasport time
+            // setBeat(noteRef);
           }, time); //this syncs it to transport time
-
           //index of sequence array
         },
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
@@ -58,7 +54,8 @@ export default function ToneJSContainer() {
       {isTonejsOn ? (
         <div>
           <CanvasRecordMotion ref={customCanvasRef} />
-          {/* <span>{}</span> */}
+          <span>{beat}</span>
+          <br style={{ lineHeight: "1" }} />
           <br style={{ lineHeight: "50" }} />
           <span>Made By Nyseer Couse</span>
           {/* <RecordMotion/> */}

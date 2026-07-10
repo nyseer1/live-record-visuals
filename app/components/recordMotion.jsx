@@ -3,7 +3,7 @@
 import { useEffect, useRef, useImperativeHandle } from "react";
 import "./recordMotion.css";
 
-export default function RecordMotion({ref}) {
+export default function RecordMotion({ ref }) {
 
     let data = [];
     let currentFrame = 0;
@@ -38,11 +38,11 @@ export default function RecordMotion({ref}) {
             stopRecording() { //starts playback 
                 console.log('recording stopped');
                 recording = false;
-                isPlaying = true; 
+                isPlaying = true;
                 recordingLength = data.length;
                 currentFrame = 0;
             },
-            calculateSpeed(){
+            calculateSpeed() {
                 //TODO find speed necessary to do specific bpm
             }
         }
@@ -59,17 +59,17 @@ export default function RecordMotion({ref}) {
 
 
         const dropZone = document.getElementById('drop_zone');
-        dropZone.addEventListener('dragover', function(e) {
+        dropZone.addEventListener('dragover', function (e) {
             e.preventDefault();
             dropZone.style.backgroundColor = '#333';
         });
 
-        dropZone.addEventListener('dragleave', function(e) {
+        dropZone.addEventListener('dragleave', function (e) {
             e.preventDefault();
             dropZone.style.backgroundColor = '#222';
         });
 
-        dropZone.addEventListener('drop', function(e) {
+        dropZone.addEventListener('drop', function (e) {
             e.preventDefault();
             dropZone.style.backgroundColor = '#222';
             const file = e.dataTransfer.files[0];
@@ -78,7 +78,7 @@ export default function RecordMotion({ref}) {
 
         window.addEventListener('resize', resizeCanvas);
 
-        window.addEventListener('pointermove', function(event) {
+        window.addEventListener('pointermove', function (event) {
             if (recording) updatePosition(event);
         });
 
@@ -86,19 +86,19 @@ export default function RecordMotion({ref}) {
         return () => {
             //destroy the canvas 
         };
-    },[]);
+    }, []);
 
     //TODO TURN THE EVENT LISTENERS (that arent window because window isnt being referenced) into react events & handlers 
 
     //FPS CAP
-    const targetFPS = 60; 
+    const targetFPS = 60;
     const targetFrameDuration = 1000 / targetFPS; // ~16.67ms  
     let lastTime = 0;
 
     function resizeCanvas() {
         canvasRef.current.width = window.innerWidth;
         canvasRef.current.height = window.innerHeight;
-    }    
+    }
 
     function updateSizeCounter() {
         const jsonString = JSON.stringify(data, null, 2);
@@ -126,7 +126,7 @@ export default function RecordMotion({ref}) {
         recordingLength = data.length;
         currentFrame = 0;
         paint = false;
-        
+
     }
 
     function updatePosition(event) {
@@ -136,39 +136,39 @@ export default function RecordMotion({ref}) {
 
     // ANIMATION ----------------------------------------------------------------------------------------------------------
 
-    function animate(currentTime) {  
-    const elapsed = currentTime - lastTime;  //time since last frame
-    
-    // Only update/draw if enough time has passed (clamp to each 1/60th second for consistent 60fps)
-    if (elapsed >= targetFrameDuration) {  
-        lastTime = currentTime - (elapsed % targetFrameDuration); // Account for excess time  
-    
-        // Update(reset/clear canvas) and draw a frame
-        draw();
-    }
-    
-    // Always request next frame, even if nothing was changed
-    requestAnimationFrame(animate);
+    function animate(currentTime) {
+        const elapsed = currentTime - lastTime;  //time since last frame
+
+        // Only update/draw if enough time has passed (clamp to each 1/60th second for consistent 60fps)
+        if (elapsed >= targetFrameDuration) {
+            lastTime = currentTime - (elapsed % targetFrameDuration); // Account for excess time  
+
+            // Update(reset/clear canvas) and draw a frame
+            draw();
+        }
+
+        // Always request next frame, even if nothing was changed
+        requestAnimationFrame(animate);
     }
 
     function draw() {
         ctx.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height); //always clear
         if (recording) {
-            if(paint){ //if mouse/touch down is happening, draw
+            if (paint) { //if mouse/touch down is happening, draw
                 data.push({ x: mouseX, y: mouseY });
                 updateSizeCounter();
                 ctx.current.fillStyle = 'red';
                 ctx.current.fillRect(mouseX - 16, mouseY - 16, 32, 32);
             }
-            else{
+            else {
                 data.push(null);
             }
-            
+
         } else if (isPlaying) {
             if (currentFrame < recordingLength) { //p is frame
                 const p = data[Math.min(Math.round(currentFrame), recordingLength - 1)]; //min makes sure doesent index out of bounds, round makes sure the decimal is removed before searching the index
 
-                if(p !== null){ //if motion happened at this frame
+                if (p !== null) { //if motion happened at this frame
                     ctx.current.fillStyle = 'green';
                     ctx.current.fillRect(p.x - 16, p.y - 16, 32, 32);
                 }
@@ -176,7 +176,7 @@ export default function RecordMotion({ref}) {
                 else {
                     console.log('blank frame here');
                 }
-                
+
                 currentFrame += speedMultiple; //anything other than 1 will make playback a different speed, relative to the original speed.
 
             } else {
@@ -204,7 +204,7 @@ export default function RecordMotion({ref}) {
 
     function loadMotionFromFile(file) {
         const reader = new FileReader();
-        reader.onload = function(event) {
+        reader.onload = function (event) {
             try {
                 const loadedData = JSON.parse(event.target.result);
                 data = loadedData;
@@ -222,22 +222,22 @@ export default function RecordMotion({ref}) {
 
     return (
         <div>
-            <canvas 
-            ref={canvasRef}
-            onTouchStart={(e) => {e.preventDefault(); updatePosition(e); paint = true}}
-            onTouchEnd={(e) => {e.preventDefault(); paint = false;}}
-            onTouchMove={(e) => {e.preventDefault(); updatePosition(e);}}
-            onPointerDown={(e) => {e.preventDefault(); updatePosition(e); paint = true}}
-            //TODO make isplaying off and isrecording off, so canvas just makes no red, and dont update position or make it null idk
-            onPointerUp={(e) => {e.preventDefault(); paint = false;}}
-            id="canvas"
+            <canvas
+                ref={canvasRef}
+                onTouchStart={(e) => { e.preventDefault(); updatePosition(e); paint = true }}
+                onTouchEnd={(e) => { e.preventDefault(); paint = false; }}
+                onTouchMove={(e) => { e.preventDefault(); updatePosition(e); }}
+                onPointerDown={(e) => { e.preventDefault(); updatePosition(e); paint = true }}
+                //TODO make isplaying off and isrecording off, so canvas just makes no red, and dont update position or make it null idk
+                onPointerUp={(e) => { e.preventDefault(); paint = false; }}
+                id="canvas"
             ></canvas>
 
             <div id="ui">
                 <h3>Target FPS: <span id="myText"></span></h3>
                 <button onClick={saveMotion}>Save Motion</button>
                 <div id="drop_zone"
-                onDragOver={saveMotion}
+                    onDragOver={saveMotion}
                 >
                     Drag and drop saved motion file here to load
                 </div>
@@ -246,6 +246,6 @@ export default function RecordMotion({ref}) {
             </div>
 
         </div>
-        
+
     );
 }
