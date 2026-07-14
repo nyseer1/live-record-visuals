@@ -167,14 +167,14 @@ export default function CanvasRecordMotion({ ref }) {
                     isPlaying = false;
                     data = [];
                     recordingLength = 0;
-                    // canvasRef.current.style = { border: '1px solid #f22' };
+                    canvasRef.current.style.setProperty("border", "1px solid #f22");
                 }
                 else { //stop rec
                     recording = false;
                     isPlaying = true;
                     recordingLength = data.length;
                     currentFrame = 0;
-                    // canvasRef.current.style = { border: '1px solid #aacccc' };
+                    canvasRef.current.style.setProperty("border", "1px solid #aacccc");
                 }
 
 
@@ -431,7 +431,7 @@ export default function CanvasRecordMotion({ ref }) {
                 id="canvas"
                 style={{ border: ' 1px solid #aacccc' }}
             > </canvas>
-            <div id="recordBox"></div>
+            {/* <div id="recordBox"></div> */}
 
             {/* save/load motion */}
             {/* <div id="ui">
