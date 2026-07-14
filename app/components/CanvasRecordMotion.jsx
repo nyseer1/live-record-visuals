@@ -253,7 +253,7 @@ export default function CanvasRecordMotion({ ref }) {
             ctxRef.current.running = false;
 
         };
-    },);
+    }, [E.trails, recording]);
 
     //FPS CAP
     const targetFPS = 60;
@@ -429,6 +429,7 @@ export default function CanvasRecordMotion({ ref }) {
                 id="canvas"
                 style={{ border: ' 1px solid #aacccc' }}
             > </canvas>
+            <div id="recordBox"></div>
 
             {/* save/load motion */}
             {/* <div id="ui">
