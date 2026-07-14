@@ -8,6 +8,8 @@ export default function ToneJSContainer() {
   const draw = Tone.getDraw(); //new func to get draw object
   const [beat, setBeat] = useState(0);
 
+  const spanRef = useRef(null);
+
   //TODO useRef to store data that is not needed for render (like a sequence array)
   const customCanvasRef = useRef(null); //to ref html canvas
 
@@ -26,7 +28,6 @@ export default function ToneJSContainer() {
         (time, note) => {
           //trigger notes/audio here
           //trigger visuals on schedule here
-
           const noteRef = note;
           draw.schedule(() => {
             // the callback synced to the animation frame at the given time here
@@ -34,7 +35,7 @@ export default function ToneJSContainer() {
               //sequence start
               customCanvasRef.current.handleRecording(); //start/stop
             }
-            // setBeat(noteRef);
+            spanRef.current.textContent = note;
           }, time); //this syncs it to transport time
           //index of sequence array
         },
@@ -49,13 +50,12 @@ export default function ToneJSContainer() {
     }
   }
 
-
   return (
     <div>
       {isTonejsOn ? (
         <div>
           <CanvasRecordMotion ref={customCanvasRef} />
-          <span>{beat}</span>
+          <span ref={spanRef}></span>
           <br style={{ lineHeight: "1" }} />
           <br style={{ lineHeight: "50" }} />
           <span>Made By Nyseer Couse</span>

@@ -1,7 +1,7 @@
 'use client'
 //TODO make this a functional react component 
 import { useEffect, useRef, useImperativeHandle } from "react";
-
+import '@/app/components/canvasRecordMiotion.css';
 export default function CanvasRecordMotion({ ref }) {
 
 
@@ -167,12 +167,14 @@ export default function CanvasRecordMotion({ ref }) {
                     isPlaying = false;
                     data = [];
                     recordingLength = 0;
+                    // canvasRef.current.style = { border: '1px solid #f22' };
                 }
                 else { //stop rec
                     recording = false;
                     isPlaying = true;
                     recordingLength = data.length;
                     currentFrame = 0;
+                    // canvasRef.current.style = { border: '1px solid #aacccc' };
                 }
 
 

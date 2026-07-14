@@ -1,0 +1,7 @@
+#recordBox {
+  height: 15px;
+  width: 15px;
+  background-color: #292;
+  border-radius: 50%;
+  border: 1px;
+}
